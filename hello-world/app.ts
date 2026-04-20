@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import fs from 'fs/promises';
 
 /**
  *
@@ -11,20 +12,25 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
  */
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    try {
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: 'hello world',
-            }),
-        };
-    } catch (err) {
-        console.log(err);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                message: 'some error happened',
-            }),
-        };
+    switch (event.path) {
+        case '/version':
+            const version = await getVersion();
+            return apiResponse(200, { version: version });
+        default:
+            return apiResponse(200, { message: 'hello world' });
     }
+};
+
+const getVersion = async (): Promise<string> => {
+    const data = await fs.readFile('package.json', 'utf8');
+    const json = JSON.parse(data);
+
+    return json.version;
+};
+
+const apiResponse = (code: number, body: object) => {
+    return {
+        statusCode: code,
+        body: JSON.stringify(body),
+    };
 };
