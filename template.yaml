@@ -25,6 +25,11 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+        Version:
+          Type: Api
+          Properties:
+            Path: /version
+            Method: get
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
